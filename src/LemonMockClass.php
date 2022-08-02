@@ -2,6 +2,7 @@
 
 namespace Lemon;
 
+use Closure;
 use ReflectionClass;
 use ReflectionParameter;
 
@@ -10,6 +11,8 @@ class LemonMockClass
     protected $attributeToMock = [];
     protected $properties = '';
     protected $methods = '';
+    public static $count = 0;
+    public static $resolver = null;
 
     /**
      * @var ReflectionClass $reflectClass
@@ -19,31 +22,48 @@ class LemonMockClass
     public function execute($className, $paths)
     {
         $this->reflectClass = new ReflectionClass($className);
-        $properties = '';
 
         foreach ($paths as $key => $value) {
-            preg_match('/.*\(.*\)/', $key, $match);
-            if (!count($match)) {
-                $this->createProperties($key, $value);
+            if ($this->isMethod($key)) {
+                $this->createMethods($key, $value);
                 continue;
             }
-
-            $this->createMethods($key, $value);
+            $this->createProperties($key, $value);
         }
 
         $magics = $this->magics();
 
-        $class = eval(<<<M
-            return new class extends $className { 
+        static::$count += 1;
+
+        $count = static::$count;
+
+        $class = $className . $count;
+        eval(<<<M
+            class $class extends $className { 
                 $this->properties
                 $magics
                 $this->methods
             };
         M);
 
-        $class->_set_attributes(Lemon::createMock($this->attributeToMock)->_attributes);
+        $instance = $this->resolverInstance($class);
 
-        return $class;
+        $instance->_set_attributes(Lemon::createMock($this->attributeToMock)->_attributes);
+
+        return $instance;
+    }
+
+    public static function setResolver(Closure $resolver)
+    {
+        static::$resolver = $resolver;
+    }
+
+    protected function resolverInstance(string $className)
+    {
+        if (static::$resolver && is_callable(static::$resolver)) {
+            return call_user_func(static::$resolver, $className);
+        }
+        return new $className;
     }
 
     protected function createProperties($key, $value)
@@ -69,7 +89,7 @@ class LemonMockClass
                     $methodParams[] = (new ParamHandler($param))->handle();
                 }
                 $methodParams = implode(',', $methodParams);
-                $returnType = $currentMethod->getReturnType() ? ':'. $currentMethod->getReturnType()->getName() : '';
+                $returnType = $currentMethod->getReturnType() ? ':' . $currentMethod->getReturnType()->getName() : '';
                 $this->methods .= <<<METHOD
                 public function $methodName($methodParams) $returnType {
                     return \$this->__call('$methodName', func_get_args());
@@ -79,6 +99,12 @@ class LemonMockClass
         } catch (\Exception $e) {
         }
         $this->attributeToMock[$key] = $value;
+    }
+
+    protected function isMethod(string $key)
+    {
+        preg_match('/.*\(.*\)/', $key, $match);
+        return (bool) count($match);
     }
 
     protected function magics()

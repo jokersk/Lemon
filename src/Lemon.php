@@ -2,6 +2,7 @@
 
 namespace Lemon;
 
+use Closure;
 use ReflectionClass;
 
 class Lemon
@@ -37,6 +38,10 @@ class Lemon
     public static function invade($obj)
     {
         return Invade::execute($obj);
+    }
+
+    public static function setClassResolver(Closure $resolver) {
+        LemonMockClass::setResolver($resolver);
     }
 
     public static function mockClass($className, $paths)

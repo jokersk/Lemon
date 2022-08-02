@@ -114,6 +114,18 @@ class LemonTest extends TestCase
         $this->assertEquals('joe', $foo->name('jack'));
         $this->assertEquals('', $foo->des('des'));
     }
+
+    /** @test */
+    public function can_set_resolver() {
+        Lemon::setClassResolver(function($classname) {
+            return new $classname;
+        });
+        $foo = Lemon::mockClass(Foo::class, [
+            'age()' => 30
+        ]);
+        
+        $this->assertEquals(30, $foo->age());
+    }
 }
 
 class Foo {
