@@ -2,6 +2,7 @@
   "name": "jokersk/lemon",
   "description": "a small tool",
   "type": "library",
+  "license": "MIT",
   "authors": [
     {
       "name": "jokersk",
