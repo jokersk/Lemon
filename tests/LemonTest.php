@@ -103,19 +103,28 @@ class LemonTest extends TestCase
     public function can_override_merthod_in_runtime() {
         $foo = Lemon::mockClass(Foo::class, [
             'name()' => '',
+            'des()' => '',
+            'age()' => 30
         ]);
 
-        $foo->setMethod('name', function($name, $foo ) {
-            return $name;
+        $foo->setMethod('name', function() {
+            return 'joe';
         });
 
-        $this->assertEquals('joe', $foo->name('joe', 1));
+        $this->assertEquals('joe', $foo->name('jack'));
+        $this->assertEquals('', $foo->des('des'));
     }
 }
 
 class Foo {
     public $id = 1;
-    public function name(string $name) : string {
+    public function name(string $name = 'joe') : string {
         return $name;
+    }
+    public function des($des = null) {
+        return $des;
+    }
+    public function age($age = 18) {
+        return $age;
     }
 }

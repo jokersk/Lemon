@@ -66,7 +66,7 @@ class LemonMockClass
                 $methodParams = [];
                 /** @var ReflectionParameter $param */
                 foreach ($params as $param) {
-                    $methodParams[] = $param->getType().' $'. $param->getName();
+                    $methodParams[] = (new ParamHandler($param))->handle();
                 }
                 $methodParams = implode(',', $methodParams);
                 $returnType = $currentMethod->getReturnType() ? ':'. $currentMethod->getReturnType()->getName() : '';
