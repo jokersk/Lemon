@@ -2,6 +2,8 @@
 
 namespace Lemon;
 
+use ReflectionClass;
+
 class Lemon
 {
     protected static function createMockWithArray($paths)
@@ -32,7 +34,13 @@ class Lemon
         ));
     }
 
-    public static function invade($obj) {
+    public static function invade($obj)
+    {
         return Invade::execute($obj);
+    }
+
+    public static function mockClass($className, $paths)
+    {
+        return (new LemonMockClass)->execute($className, $paths);
     }
 }

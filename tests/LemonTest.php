@@ -58,4 +58,51 @@ class LemonTest extends TestCase
         $this->assertEquals(2, $bar->id);
         $this->assertEquals('foo', $bar->foo());
     }
+
+    /** @test */
+    public function can_mock_class_property() {
+        $foo = Lemon::mockClass(Foo::class, [
+            'id' => 2
+        ]);
+
+        $this->assertInstanceOf(Foo::class, $foo);
+        $this->assertEquals(2, $foo->id);
+
+        $foo = Lemon::mockClass(Foo::class, [
+            'foo->bar' => 2
+        ]);
+        $this->assertEquals(2, $foo->foo->bar);
+    }
+
+    /** @test */
+    public function it_can_mock_class_with_methods() {
+        $foo = Lemon::mockClass(Foo::class, [
+            'name()' => 'joe',
+            'foo()->bar()->bob' => 'bob'
+        ]);
+
+        $this->assertInstanceOf(Foo::class, $foo);
+        $this->assertEquals('joe', $foo->name());
+        $this->assertEquals('bob', $foo->foo()->bar()->bob);
+    }
+
+    /** @test */
+    public function can_update_method_in_runtime() {
+        $foo = Lemon::mockClass(Foo::class, [
+            'name' => 'joe'
+        ]);
+
+        $foo->setMethod('getHello', function($hello) {
+            return $hello .' '. $this->name;
+        });
+
+        $this->assertEquals('hi joe', $foo->getHello('hi'));
+    }
+}
+
+class Foo {
+    public $id = 1;
+    public function name() {
+        return 'name';
+    }
 }
