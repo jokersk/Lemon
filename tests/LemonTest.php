@@ -82,14 +82,14 @@ class LemonTest extends TestCase
         ]);
 
         $this->assertInstanceOf(Foo::class, $foo);
-        $this->assertEquals('joe', $foo->name());
+        $this->assertEquals('joe', $foo->name('joe'));
         $this->assertEquals('bob', $foo->foo()->bar()->bob);
     }
 
     /** @test */
     public function can_update_method_in_runtime() {
         $foo = Lemon::mockClass(Foo::class, [
-            'name' => 'joe'
+            'name' => 'joe',
         ]);
 
         $foo->setMethod('getHello', function($hello) {
@@ -98,11 +98,24 @@ class LemonTest extends TestCase
 
         $this->assertEquals('hi joe', $foo->getHello('hi'));
     }
+
+    /** @test */
+    public function can_override_merthod_in_runtime() {
+        $foo = Lemon::mockClass(Foo::class, [
+            'name()' => '',
+        ]);
+
+        $foo->setMethod('name', function($name, $foo ) {
+            return $name;
+        });
+
+        $this->assertEquals('joe', $foo->name('joe', 1));
+    }
 }
 
 class Foo {
     public $id = 1;
-    public function name() {
-        return 'name';
+    public function name(string $name) : string {
+        return $name;
     }
 }

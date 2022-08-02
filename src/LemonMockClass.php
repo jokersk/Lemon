@@ -3,6 +3,7 @@
 namespace Lemon;
 
 use ReflectionClass;
+use ReflectionParameter;
 
 class LemonMockClass
 {
@@ -30,7 +31,8 @@ class LemonMockClass
             $this->createMethods($key, $value);
         }
 
-        $magics = static::magics();
+        $magics = $this->magics();
+
         $class = eval(<<<M
             return new class extends $className { 
                 $this->properties
@@ -59,10 +61,18 @@ class LemonMockClass
     {
         try {
             $methodName = preg_replace('/(.*)\(.*\)/', '$1', $key);
-            if ($this->reflectClass->getMethod($methodName)) {
+            if ($currentMethod = $this->reflectClass->getMethod($methodName)) {
+                $params = $currentMethod->getParameters();
+                $methodParams = [];
+                /** @var ReflectionParameter $param */
+                foreach ($params as $param) {
+                    $methodParams[] = $param->getType().' $'. $param->getName();
+                }
+                $methodParams = implode(',', $methodParams);
+                $returnType = $currentMethod->getReturnType() ? ':'. $currentMethod->getReturnType()->getName() : '';
                 $this->methods .= <<<METHOD
-                public function $methodName(...\$params) {
-                    return \$this->__call('$methodName', \$params);
+                public function $methodName($methodParams) $returnType {
+                    return \$this->__call('$methodName', func_get_args());
                 }
                 METHOD;
             }
