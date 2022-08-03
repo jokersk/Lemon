@@ -6,7 +6,6 @@
 
 ```
 composer require jokersk/lemon --dev
-
 ```
 
 ## Base Usage
