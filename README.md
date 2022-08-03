@@ -2,6 +2,13 @@
 
 ## Still in beta version
 
+## Install
+
+```
+composer require jokersk/lemon --dev
+
+```
+
 ## Base Usage
 
 ```php
