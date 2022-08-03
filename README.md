@@ -74,3 +74,16 @@ $foo->setMethod('name', function() {
 
 $foo->name() // 'joe'
 ```
+
+## Invade
+
+### Call protected method
+```php
+class Foo {
+   protected function name() {
+      return 'some one';
+   }
+}
+$foo = Lemon::invade(new Foo);
+$foo->name(); // 'some one'
+```
