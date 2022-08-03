@@ -13,17 +13,14 @@ composer require jokersk/lemon --dev
 ```php
 
 $obj = Lemon::createMock('foo->bar', 1);
-
 $obj->foo->bar // 1
-
 ```
 
 
 ```php
 
- $lemon = Lemon::createMock('foo()->bar()->bob', 1);
- $lemon->foo()->bar(12)->bob // 1
- 
+$lemon = Lemon::createMock('foo()->bar()->bob', 1);
+$lemon->foo()->bar(12)->bob // 1
 ```
 
 ## Mock Class
