@@ -13,6 +13,7 @@ class LemonMockClass
     protected $methods = '';
     public static $count = 0;
     public static $resolver = null;
+    protected $initProperties = [];
 
     /**
      * @var ReflectionClass $reflectClass
@@ -51,6 +52,8 @@ class LemonMockClass
 
         $instance->_set_attributes(Lemon::createMock($this->attributeToMock)->_attributes);
 
+        $this->initialProperties($instance);
+
         return $instance;
     }
 
@@ -72,11 +75,18 @@ class LemonMockClass
         return new $className;
     }
 
+    protected function initialProperties($instance) {
+        foreach($this->initProperties as $key => $value) {
+            $instance->$key = $value;
+        }
+    }
+
     protected function createProperties($key, $value)
     {
         try {
             if ($this->reflectClass->getProperty($key)) {
-                $this->properties .= 'public $' . $key . ' = ' . $value . ';';
+                $this->initProperties[$key] = $value;
+                $this->properties .= 'public $' . $key . ' = null;';
             }
         } catch (\Exception $e) {
             $this->attributeToMock[$key] = $value;

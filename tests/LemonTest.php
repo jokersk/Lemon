@@ -1,5 +1,4 @@
 <?php
-
 use Lemon\Lemon;
 use PHPUnit\Framework\TestCase;
 
@@ -121,16 +120,30 @@ class LemonTest extends TestCase
             return new $classname;
         });
         $foo = Lemon::mockClass(Foo::class, [
-            'id' => 1,
+            'height' => 180,
             'age()' => 30
         ]);
         
         $this->assertEquals(30, $foo->age());
+        $this->assertEquals(180, $foo->height);
+    }
+
+    /** @test */
+    public function it_can_set_property_with_complex_value() {
+        $foo = Lemon::mockClass(Foo::class, [
+            'info' => Lemon::createMock([
+                'name' => 'joe'
+            ])
+        ]);
+        
+        $this->assertEquals('joe', $foo->info->name);
     }
 }
 
 class Foo {
     public $id = 1;
+    protected $height;
+    protected $info;
     public function name(string $name = 'joe') : string {
         return $name;
     }
