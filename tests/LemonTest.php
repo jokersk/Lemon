@@ -121,6 +121,7 @@ class LemonTest extends TestCase
             return new $classname;
         });
         $foo = Lemon::mockClass(Foo::class, [
+            'id' => 1,
             'age()' => 30
         ]);
         

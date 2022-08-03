@@ -37,7 +37,8 @@ class LemonMockClass
 
         $count = static::$count;
 
-        $class = $className . $count;
+        $class = $this->getClassName($className) . $count;
+
         eval(<<<M
             class $class extends $className { 
                 $this->properties
@@ -51,6 +52,11 @@ class LemonMockClass
         $instance->_set_attributes(Lemon::createMock($this->attributeToMock)->_attributes);
 
         return $instance;
+    }
+
+    protected function getClassName(string $className) {
+        $parts = explode('\\', $className);
+        return array_pop($parts);
     }
 
     public static function setResolver(Closure $resolver)
@@ -96,8 +102,7 @@ class LemonMockClass
                 }
                 METHOD;
             }
-        } catch (\Exception $e) {
-        }
+        } catch (\Exception $e) { }
         $this->attributeToMock[$key] = $value;
     }
 
@@ -109,36 +114,6 @@ class LemonMockClass
 
     protected function magics()
     {
-        return <<<'MAGIC'
-                public $_attributes = [];
-                protected $_methods = [];
-
-                public function _set_attributes($value) {
-                    $this->_attributes = $value;
-                }
-
-                public function setMethod($key, $value) {
-                    $this->_methods[$key] = \Closure::bind($value, $this);
-                }
-
-                public function __call($name, $arguments)
-                {
-                    if ( array_key_exists($name, $this->_methods) ) {
-                        return $this->_methods[$name](...$arguments);
-                    }
-                    if ( array_key_exists($name, $this->_attributes) ) {
-                        return $this->_attributes[$name];
-                    }
-                    return function() {};
-                }
-
-                public function __get($name)
-                {
-                    if ( array_key_exists($name, $this->_attributes) ) {
-                        return $this->_attributes[$name];
-                    }
-                    return '';
-                }
-            MAGIC;
+        return MockClassBody::body();
     }
 }
