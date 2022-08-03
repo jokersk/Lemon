@@ -50,3 +50,24 @@ $foo instanceOf Foo // true
 $foo->name() // 'joe'
 
 ```
+
+### Override class method
+
+```php
+class Foo {
+   public $name = 'joe';
+   public function name() {
+      return 'some one';
+   }
+}
+
+$foo = Lemon::mockClass(Foo::class, [
+    'name()' => ''
+]);
+
+$foo->setMethod('name', function() {
+ return $this->name; <-- $this is pointing to Foo
+});
+
+$foo->name() // 'joe'
+```
