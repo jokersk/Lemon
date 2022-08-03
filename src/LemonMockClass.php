@@ -50,7 +50,7 @@ class LemonMockClass
 
         $instance = $this->resolverInstance($class);
 
-        $instance->_set_attributes(Lemon::createMock($this->attributeToMock)->_attributes);
+        $this->initAttributeAndMethod($instance, Lemon::createMock($this->attributeToMock));
 
         $this->initialProperties($instance);
 
@@ -125,5 +125,15 @@ class LemonMockClass
     protected function magics()
     {
         return MockClassBody::body();
+    }
+
+    protected function initAttributeAndMethod($instance,  MockLemon $mockLemon ) {
+        foreach($mockLemon->_attributes as $key => $value) {
+            $instance->_attributes[$key] = $value;
+        }
+
+        foreach($mockLemon->_methods as $key => $value) {
+            $instance->setMethod($key, function() use($value) { return $value; });
+        }
     }
 }

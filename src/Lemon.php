@@ -11,6 +11,7 @@ class Lemon
     {
         $class = new MockLemon();
         foreach ($paths as $key => $value) {
+            $class->_methods += Lemon::createMock($key, $value)->_methods;
             $class->_attributes += Lemon::createMock($key, $value)->_attributes;
         }
         return $class;
@@ -27,9 +28,9 @@ class Lemon
         $first = new LemonMockParse($first);
 
         if (!count($paths)) {
-            return $class->addAttribute($first->toString(), $result);
+            return $class->addAttribute($first, $result);
         }
-        return $class->addAttribute($first->toString(), static::createMock(
+        return $class->addAttribute($first, static::createMock(
             implode("->", $paths),
             $result
         ));

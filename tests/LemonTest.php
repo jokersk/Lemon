@@ -138,6 +138,17 @@ class LemonTest extends TestCase
         
         $this->assertEquals('joe', $foo->info->name);
     }
+
+    /** @test */
+    public function it_can_defind_same_name_with_propery_and_method() {
+        $foo = Lemon::createMock([
+            'name' => 'joe',
+            'name()' => 'jack'
+        ]);
+
+        $this->assertEquals('joe', $foo->name);
+        $this->assertEquals('jack', $foo->name());
+    }
 }
 
 class Foo {
